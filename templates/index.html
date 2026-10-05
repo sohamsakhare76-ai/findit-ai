@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="hero card">
+  <h1>Where did you leave it?</h1>
+  <p class="muted">Ask in plain language. FindIt AI searches your scanned memories.</p>
+  <form class="search-form" action="{{ url_for('search') }}" method="get" data-loading="Searching…">
+    <input id="search-input" type="text" name="q" autocomplete="off"
+           placeholder="Where is my {{ examples[0].replace('Where is my ', '').rstrip('?') if examples else 'laptop' }}?" autofocus>
+    <button class="btn btn-primary" type="submit">Find Object</button>
+  </form>
+  {% if examples %}
+  <div class="chips">
+    {% for e in examples %}<button type="button" class="chip example-chip">{{ e }}</button>{% endfor %}
+  </div>
+  {% endif %}
+</section>
+
+<section class="stats">
+  <div class="stat card"><span class="num">{{ stats.scans }}</span><span class="lbl">Spaces scanned</span></div>
+  <div class="stat card"><span class="num">{{ stats.objects }}</span><span class="lbl">Objects remembered</span></div>
+  <div class="stat card"><span class="num">{{ stats.kinds }}</span><span class="lbl">Kinds of objects</span></div>
+</section>
+
+<section id="scan" class="card scan-card">
+  <h2>Scan a New Space</h2>
+  <p class="muted">Upload a photo of your desk, room, bag or cupboard. Max {{ max_mb }} MB. It is analysed on this computer.</p>
+  <form action="{{ url_for('scan') }}" method="post" enctype="multipart/form-data" data-loading="Scanning… detecting objects">
+    <label class="dropzone" id="dropzone">
+      <input type="file" name="image" id="image-input" accept="image/*" required>
+      <img id="preview" alt="" hidden>
+      <span class="dz-text" id="dz-text"><strong>Choose a photo</strong> or drag it here</span>
+    </label>
+
+    <label class="field-label" for="location-input">Where is this?</label>
+    <input class="text-input" id="location-input" name="location" list="locations"
+           maxlength="60" placeholder="e.g. Study Desk" required>
+    <datalist id="locations">
+      {% for l in ["Study Desk", "Bedroom", "Hostel Room", "Backpack", "Cupboard", "Living Room"] %}<option value="{{ l }}">{% endfor %}
+    </datalist>
+    <div class="chips">
+      {% for l in ["Study Desk", "Bedroom", "Hostel Room", "Backpack", "Cupboard", "Living Room"] %}
+        <button type="button" class="chip location-chip">{{ l }}</button>
+      {% endfor %}
+    </div>
+
+    <button class="btn btn-primary btn-wide" type="submit">Scan Space</button>
+  </form>
+</section>
+
+<section>
+  <h2 class="section-title">Recent Memories</h2>
+  {% if recent %}
+  <div class="grid">
+    {% for s in recent %}
+    <a class="memory card" href="{{ url_for('scan_detail', scan_id=s.id) }}">
+      <img src="{{ s.thumb }}" alt="Scan of {{ s.location }}" loading="lazy">
+      <div class="memory-body">
+        <h3>{{ s.location }}</h3>
+        <p class="muted small">{{ s.timestamp|pretty_time }}</p>
+        <div class="chips tight">
+          {% for o in s.objects[:6] %}<span class="tag">{{ o.name|label }}{% if o.count > 1 %} ×{{ o.count }}{% endif %}</span>{% else %}<span class="tag tag-empty">No supported objects found</span>{% endfor %}
+        </div>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card empty">No memories yet. Scan your first space above to get started.</div>
+  {% endif %}
+</section>
+
+<section class="card supported">
+  <h3>What can the AI recognise?</h3>
+  <p class="muted small">Model: <code>{{ model_name }}</code>. Only these object types are supported. Anything else is not detected.</p>
+  <div class="chips tight">{% for n in supported %}<span class="tag">{{ n }}</span>{% endfor %}</div>
+</section>
+{% endblock %}

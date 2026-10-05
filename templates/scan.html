@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Scan result · FindIt AI{% endblock %}
+{% block content %}
+<section class="card">
+  <p class="eyebrow">Scan saved to memory</p>
+  <h1>{{ scan.location }}</h1>
+  <p class="muted">{{ scan.timestamp|pretty_time }}</p>
+
+  {% if detections %}
+    <div class="chips tight">
+      {% for s in summary %}<span class="tag">{{ s.name|label }}{% if s.count > 1 %} ×{{ s.count }}{% endif %} · {{ (s.best * 100)|round|int }}%</span>{% endfor %}
+    </div>
+  {% else %}
+    <div class="flash flash-warn">No supported objects were detected in this photo. The scan was still saved. Try a closer, brighter photo, and check the supported object list on the dashboard.</div>
+  {% endif %}
+
+  <img class="evidence" src="{{ image_url }}" alt="Annotated scan of {{ scan.location }}">
+
+  <div class="actions">
+    <a class="btn btn-primary" href="{{ url_for('index') }}#scan">Scan another space</a>
+    <a class="btn btn-ghost" href="{{ url_for('index') }}">Back to dashboard</a>
+  </div>
+</section>
+{% endblock %}

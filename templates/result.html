@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ query }} · FindIt AI{% endblock %}
+{% block content %}
+
+<form class="search-form compact" action="{{ url_for('search') }}" method="get" data-loading="Searching…">
+  <input type="text" name="q" value="{{ query }}" autocomplete="off">
+  <button class="btn btn-primary" type="submit">Find Object</button>
+</form>
+
+{% if state == "found" %}
+<section class="card result">
+  <p class="eyebrow">{{ query }}</p>
+  <h1>{{ object_label }}</h1>
+  <p class="lead">Last seen at <strong>{{ hit.location }}</strong></p>
+
+  <div class="meta">
+    <div><span class="meta-label">Detected</span><span class="meta-value">{{ hit.timestamp|pretty_time }}</span></div>
+    <div>
+      <span class="meta-label">Confidence</span>
+      <span class="meta-value">{{ confidence_pct }}%</span>
+      <span class="bar"><span style="width: {{ confidence_pct }}%"></span></span>
+    </div>
+  </div>
+
+  {% if evidence_url %}
+    <img class="evidence" src="{{ evidence_url }}" alt="{{ object_label }} highlighted in the scan of {{ hit.location }}">
+  {% else %}
+    <div class="flash flash-warn">The evidence image file is missing from this computer.</div>
+  {% endif %}
+
+  <div class="notice">
+    <strong>Last seen location.</strong> This is the last place the object was detected in your scanned memories. It may have been moved.
+  </div>
+
+  {% if history %}
+  <h3 class="section-title">Earlier sightings</h3>
+  <ul class="history">
+    {% for h in history %}
+      <li><a href="{{ url_for('scan_detail', scan_id=h.scan_id) }}">{{ h.location }}</a>
+        <span class="muted small">{{ h.timestamp|pretty_time }} · {{ (h.confidence * 100)|round|int }}%</span></li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</section>
+
+{% elif state == "not_found" %}
+<section class="card result">
+  <p class="eyebrow">{{ query }}</p>
+  <h1>No memory of your {{ object_label|lower }} yet</h1>
+  <p class="muted">The AI can recognise this object type, but it hasn't been seen in any scan so far. Scan the places it might be, and make sure it's clearly visible in the photo.</p>
+  <div class="actions"><a class="btn btn-primary" href="{{ url_for('index') }}#scan">Scan a space</a></div>
+</section>
+
+{% else %}
+<section class="card result">
+  <p class="eyebrow">{{ query }}</p>
+  <h1>Can't recognise “{{ term }}” yet</h1>
+  <p class="muted">The current detection model doesn't support that object, so FindIt AI can't look for it. It currently recognises:</p>
+  <div class="chips tight">{% for n in supported %}<span class="tag">{{ n }}</span>{% endfor %}</div>
+</section>
+{% endif %}
+{% endblock %}
