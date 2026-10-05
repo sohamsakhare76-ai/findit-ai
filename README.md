@@ -4,6 +4,12 @@
 ## Demo
 
 ![FindIt AI search result](static/demo/search-result.png)
+### Demo Flow
+
+1. **Scan a space** — Upload a photo of your room, desk, or other space.
+2. **Detect objects** — Local YOLO AI identifies objects and stores their visual memory.
+3. **Ask where it is** — Search for an object using a natural-language query such as `Where is my laptop?`
+4. **Get the last seen location** — FindIt AI shows the detected location, timestamp, confidence, and evidence image.
 
 FindIt AI is a local visual-memory assistant that uses open-source object detection to remember where everyday objects were **last seen** in scanned spaces.
 
