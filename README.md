@@ -1,6 +1,9 @@
 # FindIt AI
 
 > **Remember where you kept it.**
+## Demo
+
+![FindIt AI search result](static/demo/search-result.png)
 
 FindIt AI is a local visual-memory assistant that uses open-source object detection to remember where everyday objects were **last seen** in scanned spaces.
 
